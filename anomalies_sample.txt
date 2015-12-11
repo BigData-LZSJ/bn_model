@@ -1,0 +1,47 @@
+vertex name: anon_S6E
+Parents: anon_S114E 0.0053
+Child: anon_S2086E 1.0,anon_S2509E 1.0,anon_S1457E 1.0,anon_S3263E 0.7,anon_S1455E 1.0,anon_S3656E 1.0,anon_S2544E 1.0,anon_S1536E 1.0,anon_S2138E 0.51
+
+vertex name: anon_S2047E
+Parents: anon_S45E 0.1844
+Child:
+
+vertex name: anon_S1457E
+Parents: anon_S6E 1.0
+Child:
+
+vertex name: anon_S3263E
+Parents: anon_S6E 0.7
+Child:
+
+vertex name: anon_S4118E
+Parents: anon_S19E 0.5
+Child:
+
+vertex name: anon_S2766E
+Parents: anon_S19E 0.2683
+Child:
+
+vertex name: anon_S2162E
+Parents: anon_S45E 0.0293
+Child:
+
+vertex name: anon_S4847E
+Parents: anon_S4788E 0.25
+Child: anon_S5039E 0.51
+
+vertex name: anon_S2086E
+Parents: anon_S6E 1.0
+Child:
+
+vertex name: anon_S5559E
+Parents: anon_S5488E 0.15
+Child: anon_S6057E 0.1,anon_S5248E 0.095,anon_S5268E 0.05,anon_S5269E 1.0,anon_S5265E 0.35,anon_S5840E 0.1,anon_S5688E 0.1,anon_S6053E 0.1,anon_S5837E 1.0,anon_S5836E 0.4,anon_S5484E 0.08
+
+vertex name: anon_S5175E
+Parents: anon_S4788E 0.0556
+Child:
+
+vertex name: anon_S51E
+Parents: anon_S249E 0.1572
+Child: anon_S2461E 0.65,anon_S2682E 1.0,anon_S2576E 0.11,anon_S2843E 0.75,anon_S2646E 0.7,anon_S2729E 0.8,anon_S2607E 0.02,anon_S2637E 0.53,anon_S4408E 0.5,anon_S3516E 0.7,anon_S2167E 0.75,anon_S2794E 0.51,anon_S2501E 1.0
