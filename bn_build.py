@@ -139,6 +139,7 @@ class Link(object):
     def __init__(self, link_weight, link_property):
         self.link_weight = link_weight
         self.link_property = link_property
+
 class Graph(object):
     def __init__(self, v_list):
         self.vertex_list = v_list
@@ -216,7 +217,7 @@ class Graph(object):
         print "==== global bayesian model built successfully! ===="
 
     def convert_to_new_score(self):
-        print "==convert to new score...=="
+        print "== convert to new score... =="
         for v_id in self.vertex_list:
             if v_id[-1] == 'P': continue
             v = self.vertex_list[v_id]
@@ -370,13 +371,15 @@ if __name__ == '__main__':
     # v_list = load_vertex_P("./data/PINFOALL_ANON.csv", 'P', v_list)
     graph = Graph(v_list)
     graph = load_link("./data/LINK_ANON.csv", graph)
-    graph.normalize_score()
-    graph.get_root()
-    print "root cnt:",len(graph.root_list)
+    # for v in graph.vertex_list:
+    #     graph.vertex_list[v].print_vertex()
+    # graph.normalize_score()
+    # graph.get_root()
+    # print "root cnt:",len(graph.root_list)
 
-    layer_subgraph = graph.top_sort()
-    query_node_list = ["anon_S4847E","anon_S2162E","anon_S5175E","anon_S6E","anon_S2047E","anon_S1457E","anon_S4118E","anon_S51E","anon_S5559E","anon_S2086E","anon_S3263E","anon_S2766E","anon_S5014E"]
-    graph.get_local_structure(query_node_list)
+    # layer_subgraph = graph.top_sort()
+    # # query_node_list = ["anon_S4847E","anon_S2162E","anon_S5175E","anon_S6E","anon_S2047E","anon_S1457E","anon_S4118E","anon_S51E","anon_S5559E","anon_S2086E","anon_S3263E","anon_S2766E","anon_S5014E"]
+    # # graph.get_local_structure(query_node_list)
     # graph.build_global_bn(layer_subgraph)
     # graph.convert_to_new_score()
     # graph.print_bn_result()
