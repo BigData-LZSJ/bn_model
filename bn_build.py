@@ -26,7 +26,7 @@ class Vertex_E(object):
 
     def set_parent(self,p,w):
         p_id = p.idx
-         # if multi edges exist, choose the one with largest weight
+        # 若存在多条边，取weight最大的边
         if self.parent.has_key(p_id) and self.parent[p_id][1] >= w:
             pass
         else:
@@ -36,7 +36,7 @@ class Vertex_E(object):
 
     def set_child(self,c,w):
         c_id = c.idx
-        # if multi edges exist, choose the one with largest weight
+        # 若存在多条边，取weight最大的边
         if self.child.has_key(c_id) and self.child[c_id][1] >= w:
             pass
         else:
@@ -50,7 +50,20 @@ class Vertex_E(object):
         print "Child:", ",".join([v + " " + str(self.child[v][1]) for v in self.child])
 
     def set_root_marginal_dist(self):
-        prob = sigmoid(self.norm_score) # 更改此函数替换分数与概率的对应
+        # prob = sigmoid(self.norm_score) # 更改此函数替换分数与概率的对应，此处使用sigmoid函数转化
+        if self.creditscore >= 750: prob = 0.001 * (1- (self.creditscore - 750) / 150)
+        elif self.creditscore >= 700 and self.creditscore < 750: prob = 0.01 - (0.01 - 0.001) * (self.creditscore - 700) / 50
+        elif self.creditscore >= 650 and self.creditscore < 700: prob = 0.018 - (0.018 - 0.01) * (self.creditscore - 650) / 50
+        elif self.creditscore >= 600 and self.creditscore < 650: prob = 0.027 - (0.027 - 0.018) * (self.creditscore - 600) / 50
+        elif self.creditscore >= 550 and self.creditscore < 600: prob = 0.042 - (0.042 - 0.027) * (self.creditscore - 550) / 50
+        elif self.creditscore >= 500 and self.creditscore < 550: prob = 0.073 - (0.073 - 0.042) * (self.creditscore - 500) / 50
+        elif self.creditscore >= 450 and self.creditscore < 500: prob = 0.096 - (0.096 - 0.073) * (self.creditscore - 450) / 50
+        elif self.creditscore >= 400 and self.creditscore < 450: prob = 0.131 - (0.131 - 0.096) * (self.creditscore - 400) / 50
+        elif self.creditscore >= 350 and self.creditscore < 400: prob = 0.186 - (0.186 - 0.131) * (self.creditscore - 350) / 50
+        else:
+            assert self.creditscore != -1
+            prob = 0.371 - (0.371 - 0.186) * (self.creditscore - 100) / 250
+
         self.root_marginal_dist = pd.DataFrame({'P':[prob,1-prob],self.idx:[0,1]},columns = ['P',self.idx])
 
     def set_global_lpd(self):
@@ -86,11 +99,9 @@ class Vertex_E(object):
         # 将边权重归一化
         sum_w = sum(parent_weight_list) * 1.0
         parent_weight_list = map(lambda w: w / sum_w,parent_weight_list)
-        # print parent_id_list,parent_weight_list,parent_df_list
 
         # 求得lambda
         para_list = np.array(cal_parameter_list(parent_id_list,parent_weight_list,parent_df_list))
-        # print para_list
 
         # Noisy-Or计算lpd条件概率分布
         lpd_cols = ['P',self.idx] + parent_id_list
@@ -178,7 +189,7 @@ class Graph(object):
                 v.layer = 0
                 self.root_list.append(v)
 
-    # use topSort to allocate layers for vertices
+    # use toplogical to allocate layers for vertices
     def top_sort(self):
         vertex_layers = {}
         layer = 0
@@ -225,8 +236,6 @@ class Graph(object):
                 if i == 0:
                     if cur_v.creditscore == -1: continue # 对于根节点中无分数的点，直接跳过
                     cur_v.set_global_marginal_dist(1)
-                    # print cur_v.idx,cur_v.creditscore
-                    # print cur_v.global_marginal_dist
                     continue
                 print "layer:",i,cur_v.idx
                 cur_v.set_global_marginal_dist(0)
@@ -244,11 +253,22 @@ class Graph(object):
                 v.global_new_score = v.creditscore
             else:
                 marginal_df = v.global_marginal_dist
-                p = marginal_df[marginal_df[v.idx] == 0]['P']
-                norm_new_score = float(np.log(p / (1-p)))
-                new_score = norm_new_score * (self._max_score - self._min_score) + self._min_score
+                p = float(marginal_df[marginal_df[v.idx] == 0]['P'])
+
+                if p <= 0.001: new_score = (1 - p / 0.001) * 150 + 750
+                elif p <= 0.01 and p > 0.001: new_score = (0.01 - p) * 50 / (0.01 - 0.001) + 700
+                elif p <= 0.018 and p > 0.01: new_score = (0.018 - p) * 50 / (0.018 - 0.01) + 650
+                elif p <= 0.027 and p > 0.018: new_score = (0.027 - p) * 50 / (0.027 - 0.018) + 600
+                elif p <= 0.042 and p > 0.027: new_score = (0.042 - p) * 50 / (0.042 - 0.027) + 550
+                elif p <= 0.073 and p > 0.042: new_score = (0.073 - p) * 50 / (0.073 - 0.042) + 500
+                elif p <= 0.096 and p > 0.073: new_score = (0.096 - p) * 50 / (0.096 - 0.073) + 450
+                elif p <= 0.131 and p > 0.096: new_score = (0.131 - p) * 50 / (0.131 - 0.096) + 400
+                elif p <= 0.186 and p > 0.131: new_score = (0.186 - p) * 50 / (0.186 - 0.131) + 350
+                else: new_score = (0.371 - p) * 250 / (0.371 - 0.186) + 100
+
+                # norm_new_score = float(np.log(p / (1-p)))
+                # new_score = norm_new_score * (self._max_score - self._min_score) + self._min_score
                 v.global_new_score = round(new_score,2)
-            # print v.idx,v.creditscore,v.global_new_score
         print "== new scores generated =="
 
     def print_bn_result(self):
@@ -297,7 +317,6 @@ def load_vertex_E(vertex_fn, prop, v_list):
         else:
             v = Vertex_E(vertex[0]+prop, prop, float(vertex[9]), vertex[10])
         v_list[vertex[0]+prop] = v
-    # print blank_node_cnt
     print "Total enterprise node:",e_node_cnt
     return v_list
 
@@ -312,7 +331,6 @@ def load_vertex_P(vertex_fn, prop, v_list):
             blank_node_cnt = blank_node_cnt + 1
         v = Vertex_P(vertex[0]+prop, prop, vertex[1])
         v_list[vertex[0]+prop] = v
-   # print blank_node_cnt
     return v_list
 
 def load_link(link_fn, graph):
@@ -371,26 +389,24 @@ def generate_df(cols):
     df['P'].astype(float)
     return df
 
+# dataframe对应列相乘
 def multiplyDf(df1,df2):
-    # print df1,df2
     mutualNodes = list(set(df1.columns) & set(df2.columns) - set('P'))
     mergedCol = ['P'] + list((set(df1.columns) | set(df2.columns)) - set('P'))
     dfm = pd.merge(df1,df2,on = mutualNodes,suffixes = ('_1','_2'))
     dfm['P'] = dfm['P_1'] * dfm['P_2']
     dfm = dfm.drop(['P_1','P_2'],1)
     dfm = dfm.reindex_axis(mergedCol,axis = 1)
-    # print dfm
     return dfm
 
 if __name__ == '__main__':
 
     v_list = {}
+    # 数据需要存放在根目录./data/文件夹下读入
     v_list = load_vertex_E("./data/EINFOALL_ANON.csv", 'E', v_list)
     # v_list = load_vertex_P("./data/PINFOALL_ANON.csv", 'P', v_list)
     graph = Graph(v_list)
     graph = load_link("./data/LINK_ANON.csv", graph)
-    # for v in graph.vertex_list:
-    #     graph.vertex_list[v].print_vertex()
     graph.normalize_score()
     graph.get_root()
     print "root cnt:",len(graph.root_list)
